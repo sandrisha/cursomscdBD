@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace Database
 {
-    public class Db
+    public static class Db
     {
         //Esta var antes estaba definida localmente, ahora la convertimos a global o atributo
-        private SqlConnection conexion = null;
+        private static SqlConnection conexion = null;
 
-        public void Conectar()
+        public static void Conectar()
         {
             try
             {
@@ -70,24 +70,24 @@ namespace Database
 
         }
 
-        public bool EstalaConexionAbierta()
+        public static bool EstalaConexionAbierta()
         {
             return conexion.State == ConnectionState.Open;
         }
 
-        public void Desconectar()
+        public static void Desconectar()
         {
             //this hace referencia a la propia clase, es decir, conexión es un atributo de la clase Db
-            if(this.conexion != null)
-            {
-                if(this.conexion.State != ConnectionState.Closed)
-                {
-                    this.conexion.Close();
-                }
-            }
+            //if(this.conexion != null)
+            //{
+            //    if(this.conexion.State != ConnectionState.Closed)
+            //    {
+            //        this.conexion.Close();
+            //    }
+            //}
         }
 
-        public List<Usuario> DameLosUsuarios()
+        public static List<Usuario> DameLosUsuarios()
         {
             //Usuario[]   usuarios = null;
             List<Usuario> usuarios = null;
@@ -129,7 +129,7 @@ namespace Database
             return usuarios;
         }
 
-        public void InsertarUsuario(Usuario usuario)
+        public static void InsertarUsuario(Usuario usuario)
         {
             // PREPARO LA CONSULTA SQL PARA INSERTAR AL NUEVO USUARIO
             string consultaSQL = @"INSERT INTO Users (
@@ -161,7 +161,7 @@ namespace Database
             comando.ExecuteNonQuery();
         }
 
-        public void ElminarUsuario(string email)
+        public static void ElminarUsuario(string email)
         {
             // PREPARO LA CONSULTA SQL PARA ELIMINAR AL NUEVO USUARIO
             string consultaSQL = @"DELETE FROM Users 
@@ -173,7 +173,7 @@ namespace Database
             comando.ExecuteNonQuery();
         }
 
-        public void ActualizarUsuario(Usuario usuario)
+        public static void ActualizarUsuario(Usuario usuario)
         {
             // PREPARO LA CONSULTA SQL PARA INSERTAR AL NUEVO USUARIO
             string consultaSQL = @"UPDATE Users ";
