@@ -1,48 +1,41 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Database
 {
     public static class Db
     {
-        //Esta var antes estaba definida localmente, ahora la convertimos a global o atributo
         private static SqlConnection conexion = null;
 
         public static void Conectar()
         {
             try
             {
-                // Preparo la cadena de conexión a la Base de datos
+                // PREPARO LA CADENA DE CONEXIÓN A LA BD
                 string cadenaConexion = @"Server=.\sqlexpress;
-                                        Database=testdb;
-                                        User Id=testuser;
-                                        Password = !Curso@2017; ";
+                                          Database=carrental;
+                                          User Id=testuser;
+                                          Password=!Curso@2017;";
 
-                // Creo la conexión
+                // CREO LA CONEXIÓN
                 conexion = new SqlConnection();
                 conexion.ConnectionString = cadenaConexion;
 
-                // Trato de abrir la conexión
+                // TRATO DE ABRIR LA CONEXION
                 conexion.Open();
 
-
-                //// Pregunto por el estado de la conexión
+                //// PREGUNTO POR EL ESTADO DE LA CONEXIÓN
                 //if (conexion.State == ConnectionState.Open)
                 //{
-                //    Console.WriteLine("¡Conexión abierta con éxito!");
-                //    // Cierro la conexión
+                //    Console.WriteLine("Conexión abierta con éxito");
+                //    // CIERRO LA CONEXIÓN
                 //    conexion.Close();
                 //}
-
             }
             catch (Exception)
-            {   //si la conexión es nula y el estado cerrarlo
+            {
                 if (conexion != null)
                 {
                     if (conexion.State != ConnectionState.Closed)
@@ -53,96 +46,211 @@ namespace Database
                     conexion = null;
                 }
             }
-            // Si tenemos error o no ésta parte del código siempre se va a ejecutar
             finally
             {
-            //    if (conexion.State != ConnectionState.Closed)
-            //    {
-            //        conexion.Close();
-            //        Console.WriteLine("¡Conexión cerrada con éxito!");
-            //    }
-            //    // Destruyo la conexión
-            //    // Usamos el Dispose() En el proceso de destruccion tener tiempo de hacer otras acciones
-            //    conexion.Dispose();
-            //    conexion = null;
+                // DESTRUYO LA CONEXIÓN
+                //if (conexion != null)
+                //{
+                //    if (conexion.State != ConnectionState.Closed)
+                //    {
+                //        conexion.Close();
+                //        Console.WriteLine("Conexión cerrada con éxito");
+                //    }
+                //    conexion.Dispose();
+                //    conexion = null;
+                //}
             }
-
-
         }
 
-        public static bool EstalaConexionAbierta()
+        public static bool EstaLaConexionAbierta()
         {
             return conexion.State == ConnectionState.Open;
         }
 
         public static void Desconectar()
         {
-            //this hace referencia a la propia clase, es decir, conexión es un atributo de la clase Db
-            //if(this.conexion != null)
-            //{
-            //    if(this.conexion.State != ConnectionState.Closed)
-            //    {
-            //        this.conexion.Close();
-            //    }
-            //}
+            if (conexion != null)
+            {
+                if (conexion.State != ConnectionState.Closed)
+                {
+                    conexion.Close();
+                }
+            }
         }
 
         public static List<Usuario> DameLosUsuarios()
         {
-            //Usuario[]   usuarios = null;
+            //Usuario[]     usuarios = null;
             List<Usuario> usuarios = null;
-            // Preparo la consulta SQL para obtener los usuarios
+            // PREPARO LA CONSULTA SQL PARA OBTENER LOS USUARIOS
             string consultaSQL = "SELECT * FROM Users;";
-
-            // Preparo un comando para ejecutar a la base de datos
+            // PREPARO UN COMANDO PARA EJECUTAR A LA BASE DE DATOS
             SqlCommand comando = new SqlCommand(consultaSQL, conexion);
-
-            // Recojo los datos (ExecuteReader: es la manera de ejecutarlo)
+            // RECOJO LOS DATOS
             SqlDataReader reader = comando.ExecuteReader();
             usuarios = new List<Usuario>();
-            //Si hay filas para leer entonces devuelve algo
 
-            //con Read accedo a una linea cada vez, se ejecuta tantas veces como lineas tenga
             while (reader.Read())
             {
                 usuarios.Add(new Usuario()
                 {
-                    //pasar todos los datos de usuario a una lista
-                    //Convertir a número el hiddenId
                     hiddenId = int.Parse(reader["hiddenId"].ToString()),
-                    Id = reader["Id"].ToString(),
+                    Id = reader["id"].ToString(),
                     email = reader["email"].ToString(),
                     password = reader["password"].ToString(),
                     firstName = reader["firstName"].ToString(),
                     lastName = reader["lastName"].ToString(),
                     photoUrl = reader["photoUrl"].ToString(),
                     searchPreferences = reader["searchPreferences"].ToString(),
-                    //Tres formas de convertir número a booleano
                     status = bool.Parse(reader["status"].ToString()),
                     deleted = (bool)reader["deleted"],
                     isAdmin = Convert.ToBoolean(reader["isAdmin"])
                 });
+            }
+
+            // DEVUELVO LOS DATOS
+            return usuarios;
+        }
+
+        public static List<MarcasNCoches> DameListaMarcasNCoches()
+        {
+            List<MarcasNCoches> resultados = new List<MarcasNCoches>();
+            // PREPARO LA CONSULTA SQL PARA OBTENER LOS USUARIOS
+            string consultaSQL = "SELECT * FROM V_N_COCHES_POR_MARCA;";
+            // PREPARO UN COMANDO PARA EJECUTAR A LA BASE DE DATOS
+            SqlCommand comando = new SqlCommand(consultaSQL, conexion);
+            // RECOJO LOS DATOS
+            SqlDataReader reader = comando.ExecuteReader();
+
+            while (reader.Read())
+            {
+                resultados.Add(new MarcasNCoches()
+                {
+                    marca = reader["Marca"].ToString(),
+                    nCoches = (int)reader["nCoches"]
+                });
+            }
+
+            // DEVUELVO LOS DATOS
+            return resultados;
+        }
+
+        public static List<Coche> DameListaCochesConProcedimientoAlmacenado()
+        {
+            // CREO EL OBJETO EN EL QUE SE DEVOLVERÁN LOS RESULTADOS
+            List<Coche> resultados = new List<Coche>();
+
+            // PREPARO LA LLAMADA AL PROCEDIMIENTO ALMACENADO
+            string procedimientoAEjecutar = "dbo.GET_COCHE_POR_MARCA";
+
+            // PREPARAMOS EL COMANDO PARA EJECUTAR EL PROCEDIMIENTO ALMACENADO
+            SqlCommand comando = new SqlCommand(procedimientoAEjecutar, conexion);
+            comando.CommandType = CommandType.StoredProcedure;
+            // EJECUTO EL COMANDO
+            SqlDataReader reader = comando.ExecuteReader();
+            // RECORRO EL RESULTADO Y LO PASO A LA VARIABLE A DEVOLVER
+            while (reader.Read())
+            {
+                // CREO EL COCHE
+                Coche coche = new Coche();
+                coche.id = (long)reader["id"];
+                coche.matricula = reader["matricula"].ToString();
+                coche.color = reader["color"].ToString();
+                coche.cilindrada = (decimal)reader["cilindrada"];
+                coche.nPlazas = (short)reader["nPlazas"];
+                coche.fechaMatriculacion = (DateTime)reader["fechaMatriculacion"];
+                coche.marca = new Marca();
+                coche.marca.id = (long)reader["idMarca"];
+                coche.marca.denominacion = reader["denominacionMarca"].ToString();
+                coche.tipoCombustible = new TipoCombustible();
+                coche.tipoCombustible.id = (long)reader["idTipoCombustible"];
+                coche.tipoCombustible.denominacion = reader["denominacionTiposCombustible"].ToString();
+                // AÑADO EL COCHE A LA LISTA DE RESULTADOS
+                resultados.Add(coche);
 
             }
 
-            // Devuelvo los datos
-            return usuarios;
+            return resultados;
+        }
+
+        public static List<Coche> GET_COCHE_POR_MARCA_MATRICULA_PLAZAS()
+        {
+            // CREO EL OBJETO EN EL QUE SE DEVOLVERÁN LOS RESULTADOS
+            List<Coche> resultados = new List<Coche>();
+
+            // PREPARO LA LLAMADA AL PROCEDIMIENTO ALMACENADO
+            string procedimientoAEjecutar = "dbo.GET_COCHE_POR_MARCA_MATRICULA_PLAZAS";
+
+            // PREPARAMOS EL COMANDO PARA EJECUTAR EL PROCEDIMIENTO ALMACENADO
+            SqlCommand comando = new SqlCommand(procedimientoAEjecutar, conexion);
+            comando.CommandType = CommandType.StoredProcedure;
+            // EJECUTO EL COMANDO
+            SqlDataReader reader = comando.ExecuteReader();
+            // RECORRO EL RESULTADO Y LO PASO A LA VARIABLE A DEVOLVER
+            while (reader.Read())
+            {
+                // CREO EL COCHE
+                Coche coche = new Coche();
+                coche.matricula = reader["matricula"].ToString();
+                coche.nPlazas = (short)reader["nPlazas"];
+                coche.marca = new Marca();
+                coche.marca.denominacion = reader["Marca"].ToString();
+                // AÑADO EL COCHE A LA LISTA DE RESULTADOS
+                resultados.Add(coche);
+            }
+
+            return resultados;
+        }
+
+        public static List<Coche> GET_COCHE_POR_MARCA_MATRICULA_PLAZAS_2(string marca, short nPlazas)
+        {
+            // CREO EL OBJETO EN EL QUE SE DEVOLVERÁN LOS RESULTADOS
+            List<Coche> resultados = new List<Coche>();
+
+            // PREPARO LA LLAMADA AL PROCEDIMIENTO ALMACENADO
+            string procedimientoAEjecutar = "dbo.GET_COCHE_POR_MARCA_MATRICULA_PLAZAS_2";
+
+            // PREPARAMOS EL COMANDO PARA EJECUTAR EL PROCEDIMIENTO ALMACENADO
+            SqlCommand comando = new SqlCommand(procedimientoAEjecutar, conexion);
+            comando.CommandType = CommandType.StoredProcedure;
+            // PREPARO LOS PARAMETROS Y LES PASO LOS VALORES
+            SqlParameter parametroMarca = new SqlParameter();
+            parametroMarca.ParameterName = "marca";
+            parametroMarca.SqlDbType = SqlDbType.NVarChar;
+            parametroMarca.SqlValue = marca;
+            comando.Parameters.Add(parametroMarca);
+
+            SqlParameter parametroNPlazas = new SqlParameter();
+            parametroNPlazas.ParameterName = "nPlazas";
+            parametroNPlazas.SqlDbType = SqlDbType.SmallInt;
+            parametroNPlazas.SqlValue = nPlazas;
+            comando.Parameters.Add(parametroNPlazas);
+
+            // EJECUTO EL COMANDO
+            SqlDataReader reader = comando.ExecuteReader();
+            // RECORRO EL RESULTADO Y LO PASO A LA VARIABLE A DEVOLVER
+            while (reader.Read())
+            {
+                // CREO EL COCHE
+                Coche coche = new Coche();
+                coche.matricula = reader["matricula"].ToString();
+                coche.nPlazas = (short)reader["nPlazas"];
+                coche.marca = new Marca();
+                coche.marca.denominacion = reader["Marca"].ToString();
+                // AÑADO EL COCHE A LA LISTA DE RESULTADOS
+                resultados.Add(coche);
+            }
+
+            return resultados;
         }
 
         public static void InsertarUsuario(Usuario usuario)
         {
             // PREPARO LA CONSULTA SQL PARA INSERTAR AL NUEVO USUARIO
             string consultaSQL = @"INSERT INTO Users (
-                                                email
-                                               ,password
-                                               ,firstName
-                                               ,lastName
-                                               ,photoUrl
-                                               ,searchPreferences
-                                               ,status
-                                               ,deleted
-                                               ,isAdmin
-                                               )
+                    email,password,firstName,lastName,photoUrl
+                    ,searchPreferences,status,deleted,isAdmin
+		                                       )
                                          VALUES (";
             consultaSQL += "'" + usuario.email + "'";
             consultaSQL += ",'" + usuario.password + "'";
@@ -161,15 +269,15 @@ namespace Database
             comando.ExecuteNonQuery();
         }
 
-        public static void ElminarUsuario(string email)
+        public static void EliminarUsuario(string email)
         {
-            // PREPARO LA CONSULTA SQL PARA ELIMINAR AL NUEVO USUARIO
+            // PREPARO LA CONSULTA SQL PARA INSERTAR AL NUEVO USUARIO
             string consultaSQL = @"DELETE FROM Users 
                                    WHERE email = '" + email + "';";
 
             // PREPARO UN COMANDO PARA EJECUTAR A LA BASE DE DATOS
             SqlCommand comando = new SqlCommand(consultaSQL, conexion);
-            // RECOJO LOS DATOS
+            // EJECUTO EL COMANDO
             comando.ExecuteNonQuery();
         }
 
@@ -189,9 +297,8 @@ namespace Database
 
             // PREPARO UN COMANDO PARA EJECUTAR A LA BASE DE DATOS
             SqlCommand comando = new SqlCommand(consultaSQL, conexion);
-            // RECOJO LOS DATOS
+            // EJECUTO EL COMANDO
             comando.ExecuteNonQuery();
         }
-            
     }
 }

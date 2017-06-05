@@ -43,7 +43,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Modelos\Coche.cs" />
     <Compile Include="DB\Db.cs" />
+    <Compile Include="Modelos\Marca.cs" />
+    <Compile Include="Modelos\MarcasNCoches.cs" />
+    <Compile Include="Modelos\TipoCombustible.cs" />
     <Compile Include="Modelos\Usuario.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
