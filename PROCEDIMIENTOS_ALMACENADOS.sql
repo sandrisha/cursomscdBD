@@ -55,8 +55,8 @@ BEGIN
         INNER JOIN Coches C ON M.id = C.idMarca
 	WHERE  
 		(M.denominacion LIKE '%' + @marca + '%' OR @marca is null)
-		--hacer que siempre sea verdadero
-    and    (C.nPlazas >= @nPlazas OR @nPlazas is null)
+		--hacer que siempre que sea verdadero
+    and (C.nPlazas >= @nPlazas OR @nPlazas is null)
 		
 	AND C.nPlazas >= @nPlazas
     
