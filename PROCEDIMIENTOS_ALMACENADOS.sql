@@ -105,3 +105,36 @@ BEGIN
 	SELECT id, denominacion FROM Marcas
 	WHERE Marcas.id = @id
 END
+
+-- CREAR PROCEDIMIENTO PARA OBTENER LA LISTA DE COMBUSTIBLE
+ALTER PROCEDURE GetCombustibles
+AS
+BEGIN
+	SELECT id, denominacion FROM TiposCombustible
+END
+
+-- CREAR PROCEDIMIENTO PARA OBTENER LA LISTA DE COMBUSTIBLE POR ID
+ALTER PROCEDURE GetCombustiblesPorId
+	@id bigint = NULL
+AS
+BEGIN
+	SELECT id, denominacion FROM TiposCombustible
+	WHERE TiposCombustible.id = @id
+END
+
+-- PROCEDIMIENTO PARA INSERTAR UNA NUEVA MARCA
+ALTER PROCEDURE AgregarMarca
+	@denominacion nvarchar(50)
+AS
+BEGIN
+	INSERT INTO Marcas(denominacion)VALUES(@denominacion)
+END
+
+
+-- PROCEDIMIENTO PARA INSERTAR UNA NUEVO TIPO DE COMBUSTIBLE
+ALTER PROCEDURE AgregarTipoCombustible
+	@denominacion nvarchar(50)
+AS
+BEGIN
+	INSERT INTO TiposCombustible(denominacion)VALUES(@denominacion)
+END

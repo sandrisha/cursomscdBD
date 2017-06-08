@@ -403,6 +403,99 @@ namespace ApiCarrental
             return resultado;
         }
 
+        public static List<TipoCombustible> GetCombustibles()
+        {
+            List<TipoCombustible> resultado = new List<TipoCombustible>();
+            //LLAMO A LA BASE DE DATOS
+
+            //PREPARO EL PROCEDIMIENTO A EJECUTAR
+            string procedimiento = "dbo.GetCombustibles";
+
+            // PREPARAMOS EL COMANDO PARA EJECUTAR EL PROCEDIMIENTO ALMACENADO (LA BD)
+            SqlCommand comando = new SqlCommand(procedimiento, conexion);
+            //INDICO QUE LO QUE VOY A EJECUTAR ES UN PROCED ALMACENADO StoreProcedure
+            comando.CommandType = CommandType.StoredProcedure;
+            //EJECUTO EL COMANDO
+            SqlDataReader reader = comando.ExecuteReader();
+            // PROCESO EL RESULTADO Y LO METO EN LA VARIABLE
+            while (reader.Read())
+            {
+                TipoCombustible combustibles = new TipoCombustible();
+                combustibles.id = (long)reader["id"];
+                combustibles.denominacion = reader["denominacion"].ToString();
+                // añadir a la lista que voy a devolver
+                resultado.Add(combustibles);
+            }
+            return resultado;
+        }
+
+        public static List<TipoCombustible> GetCombustiblesPorId(long id)
+        {
+            List<TipoCombustible> resultado = new List<TipoCombustible>();
+            //LLAMO A LA BASE DE DATOS
+
+            //PREPARO EL PROCEDIMIENTO A EJECUTAR
+            string procedimiento = "dbo.GetCombustiblesPorId";
+
+            // PREPARAMOS EL COMANDO PARA EJECUTAR EL PROCEDIMIENTO ALMACENADO (LA BD)
+            SqlCommand comando = new SqlCommand(procedimiento, conexion);
+            //INDICO QUE LO QUE VOY A EJECUTAR ES UN PROCED ALMACENADO StoreProcedure
+            comando.CommandType = CommandType.StoredProcedure;
+            SqlParameter parametroId = new SqlParameter();
+            parametroId.ParameterName = "id";
+            parametroId.SqlDbType = SqlDbType.BigInt;
+            parametroId.SqlValue = id;
+            comando.Parameters.Add(parametroId);
+
+            //EJECUTO EL COMANDO
+            SqlDataReader reader = comando.ExecuteReader();
+            // PROCESO EL RESULTADO Y LO METO EN LA VARIABLE
+            while (reader.Read())
+            {
+                TipoCombustible combustibles = new TipoCombustible();
+                combustibles.id = (long)reader["id"];
+                combustibles.denominacion = reader["denominacion"].ToString();
+                // añadir a la lista que voy a devolver
+                resultado.Add(combustibles);
+            }
+            return resultado;
+        }
+
+        public static int AgregarMarca(Marca marca)
+        {
+            string procedimiento = "dbo.AgregarMarca";
+
+            SqlCommand comando = new SqlCommand(procedimiento, conexion);
+            comando.CommandType = CommandType.StoredProcedure;
+            SqlParameter parametro = new SqlParameter();
+            parametro.ParameterName = "denominacion";
+            parametro.SqlDbType = SqlDbType.NVarChar;
+            parametro.SqlValue = marca.denominacion;
+
+            comando.Parameters.Add(parametro);
+            int filasAfectadas = comando.ExecuteNonQuery();
+
+            return filasAfectadas;
+        }
+
+        public static int AgregarTipoCombustible(TipoCombustible combustible)
+        {
+            string procedimiento = "dbo.AgregarTipoCombustible";
+
+            SqlCommand comando = new SqlCommand(procedimiento, conexion);
+            comando.CommandType = CommandType.StoredProcedure;
+            SqlParameter parametro = new SqlParameter();
+            parametro.ParameterName = "denominacion";
+            parametro.SqlDbType = SqlDbType.NVarChar;
+            parametro.SqlValue = combustible.denominacion;
+
+            comando.Parameters.Add(parametro);
+            int filasAfectadas = comando.ExecuteNonQuery();
+
+            return filasAfectadas;
+        }
+
+
 
     }
 }

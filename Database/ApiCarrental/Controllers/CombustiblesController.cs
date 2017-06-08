@@ -7,20 +7,20 @@ using System.Web.Http;
 
 namespace ApiCarrental.Controllers
 {
-    public class MarcasController : ApiController
+    public class CombustiblesController : ApiController
     {
-        // GET: api/Marcas
+        // GET: api/Combustibles
         public RespuestaApi Get()
         {
             RespuestaApi resultado = new RespuestaApi();
-            List<Marca> listaMarcas = new List<Marca>();
+            List<TipoCombustible> listaCombustible = new List<TipoCombustible>();
             try
             {
                 Db.Conectar();
 
                 if (Db.EstaLaConexionAbierta())
                 {
-                    listaMarcas = Db.GetMarcas();
+                    listaCombustible = Db.GetCombustibles();
                 }
                 resultado.error = "";
                 Db.Desconectar();
@@ -30,23 +30,23 @@ namespace ApiCarrental.Controllers
                 resultado.error = "Se produjo un error";
             }
 
-            resultado.totalElementos = listaMarcas.Count;
-            resultado.dataMarcas = listaMarcas;
+            resultado.totalElementos = listaCombustible.Count;
+            resultado.dataCombustibles = listaCombustible;
             return resultado;
         }
 
-        // GET: api/Marcas/5
+        // GET: api/Combustibles/5
         public RespuestaApi Get(long id)
         {
             RespuestaApi resultado = new RespuestaApi();
-            List<Marca> listaMarcas = new List<Marca>();
+            List<TipoCombustible> listaCombustible = new List<TipoCombustible>();
             try
             {
                 Db.Conectar();
 
                 if (Db.EstaLaConexionAbierta())
                 {
-                    listaMarcas = Db.GetMarcasPorId(id);
+                    listaCombustible = Db.GetCombustiblesPorId(id);
                 }
                 resultado.error = "";
                 Db.Desconectar();
@@ -56,14 +56,14 @@ namespace ApiCarrental.Controllers
                 resultado.error = "Se produjo un error";
             }
 
-            resultado.totalElementos = listaMarcas.Count;
-            resultado.dataMarcas = listaMarcas;
+            resultado.totalElementos = listaCombustible.Count;
+            resultado.dataCombustibles = listaCombustible;
             return resultado;
         }
 
-        // POST: api/Marcas
+        // POST: api/Combustibles
         [HttpPost]
-        public IHttpActionResult Post([FromBody] Marca marca)
+        public IHttpActionResult Post([FromBody] TipoCombustible combustible)
         {
             RespuestaApi respuesta = new RespuestaApi();
             respuesta.error = "";
@@ -74,7 +74,7 @@ namespace ApiCarrental.Controllers
 
                 if (Db.EstaLaConexionAbierta())
                 {
-                    filasAfectadas = Db.AgregarMarca(marca);
+                    filasAfectadas = Db.AgregarTipoCombustible(combustible);
                 }
 
                 respuesta.totalElementos = filasAfectadas;
@@ -90,13 +90,13 @@ namespace ApiCarrental.Controllers
 
             return Ok(respuesta);
         }
-        
-        // PUT: api/Marcas/5
+
+        // PUT: api/Combustibles/5
         public void Put(int id, [FromBody]string value)
         {
         }
 
-        // DELETE: api/Marcas/5
+        // DELETE: api/Combustibles/5
         public void Delete(int id)
         {
         }
